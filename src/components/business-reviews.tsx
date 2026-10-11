@@ -1,6 +1,6 @@
 import { ArrowUpRight, Mail, MapPin, Phone, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import workAsset from "@/assets/trabajo.jpg.asset.json";
+const WORK_PHOTO = "/assets/galeria/bano-reforma-moderna.png";
 
 const MAPS = "https://maps.app.goo.gl/xqambCjS2vLc34x89";
 const TEL = "tel:+34666854310";
@@ -33,11 +33,11 @@ export function BusinessReviews() {
       <div className="page-width">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">AYOX en Google</p>
+            <p className="eyebrow">Clientes de fontanería</p>
             <h2>
-              La confianza se gana
+              Opiniones que hablan
               <br />
-              en cada trabajo.
+              de fugas, baños y urgencias.
             </h2>
           </div>
           <Button asChild variant="outline">
@@ -91,13 +91,13 @@ export function BusinessReviews() {
         <div className="mt-14 grid gap-10 lg:grid-cols-2">
           <figure>
             <img
-              src={workAsset.url}
-              alt="Reforma de albañilería realizada por AYOX en Alicante"
+              src={WORK_PHOTO}
+              alt="Reforma de baño realizada por AYOX Fontanería en Alicante"
               loading="lazy"
               className="w-full rounded-md object-contain"
             />
             <figcaption className="mt-3 text-xs text-muted-foreground">
-              Reforma y albañilería · Foto de{" "}
+              Fontanería y baño · Foto de{" "}
               <a
                 href="https://maps.google.com/maps/contrib/104987134451890783201"
                 target="_blank"

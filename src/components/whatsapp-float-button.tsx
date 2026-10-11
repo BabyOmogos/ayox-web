@@ -25,11 +25,20 @@ export function WhatsAppFloatButton() {
       href={whatsAppHref()}
       target="_blank"
       rel="noopener noreferrer"
-      className="whatsapp-fab"
-      aria-label="Abrir chat de WhatsApp con AYOX Servicios"
-      title="WhatsApp"
+      className="whatsapp-fab group"
+      aria-label="Abrir chat de WhatsApp con AYOX Servicios (666 854 310)"
+      title="¿Hablamos por WhatsApp? 666 854 310"
     >
-      <WhatsAppIcon className="size-7 text-white" />
+      <span className="relative flex items-center justify-center">
+        <WhatsAppIcon className="size-8 text-white transition-transform duration-200 group-hover:scale-110" />
+        <span
+          className="absolute -top-1 -right-1 flex size-3"
+          aria-hidden="true"
+        >
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+          <span className="relative inline-flex size-3 rounded-full bg-white" />
+        </span>
+      </span>
     </a>
   );
 }

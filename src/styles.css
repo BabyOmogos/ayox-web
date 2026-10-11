@@ -187,6 +187,495 @@ body { font-family: var(--font-body); }
 .panel-nav-item { display: flex; width: 100%; gap: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--card); padding: 0.875rem 1rem; text-align: left; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
 .panel-nav-item:hover { border-color: color-mix(in oklch, var(--accent) 40%, var(--border)); background: var(--secondary); }
 .panel-demo-note { border-radius: var(--radius-md); border: 1px dashed var(--border); background: var(--secondary); padding: 1rem 1.125rem; }
+/* Web pública fontanería — inspirada en landing limpia tipo tufont.es */
+.plumbing-site {
+  --font-display: "Montserrat", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --tufont-teal: oklch(0.52 0.11 220);
+  --tufont-cyan: oklch(0.91 0.16 195);
+  --tufont-cyan-soft: oklch(0.82 0.1 205);
+  --tufont-navy: oklch(0.28 0.04 250);
+  --tufont-muted: oklch(0.52 0.03 230);
+  --accent: var(--tufont-cyan);
+  --accent-foreground: var(--tufont-navy);
+  --ring: oklch(0.75 0.12 195);
+  --primary: var(--tufont-navy);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.97 0.008 230);
+  --muted-foreground: var(--tufont-muted);
+  --cover-overlay: var(--tufont-navy);
+  position: relative;
+  isolation: isolate;
+  background: var(--background);
+  overflow-x: clip;
+}
+.plumbing-site > .plumbing-watermark-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.plumbing-watermark-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: min(480px, 32vw);
+  background-image: url("/assets/plumbing-watermark.svg");
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+  opacity: 0.75;
+}
+.plumbing-watermark-track--left {
+  left: 0;
+  background-position: left top;
+}
+.plumbing-watermark-track--right {
+  right: 0;
+  transform: scaleX(-1);
+  background-position: left top 450px;
+  opacity: 0.65;
+}
+@media (max-width: 1024px) {
+  .plumbing-watermark-track {
+    width: min(340px, 36vw);
+    opacity: 0.55;
+  }
+}
+@media (max-width: 640px) {
+  .plumbing-watermark-track {
+    width: min(250px, 50vw);
+    opacity: 0.42;
+  }
+  .plumbing-watermark-track--right {
+    display: none;
+  }
+}
+.plumbing-site > :not(.plumbing-watermark-bg):not(.plumbing-sticky-bar):not(.whatsapp-fab) {
+  position: relative;
+  z-index: 1;
+}
+.plumbing-sticky-bar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  width: 100%;
+  background: color-mix(in oklch, var(--background) 95%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 20px oklch(0.24 0.03 240 / 7%);
+}
+.plumbing-sticky-bar .plumbing-utility {
+  background: transparent;
+  color: var(--tufont-muted);
+  font-size: 12px;
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  backdrop-filter: none;
+}
+.plumbing-sticky-bar .plumbing-header {
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.plumbing-site .page-section--default {
+  background: transparent;
+}
+.plumbing-site .page-section--muted {
+  background: color-mix(in oklch, var(--secondary) 65%, transparent);
+}
+.plumbing-site .page-section--contrast {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--secondary) 65%, transparent) 0%,
+    color-mix(in oklch, var(--background) 70%, transparent) 100%
+  );
+}
+.plumbing-site .eyebrow {
+  color: var(--tufont-teal);
+  letter-spacing: 0.08em;
+}
+.plumbing-site .section-title {
+  color: var(--tufont-teal);
+  font-weight: 700;
+}
+.plumbing-utility {
+  background: color-mix(in oklch, var(--background) 90%, transparent);
+  color: var(--tufont-muted);
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+.plumbing-header {
+  background: color-mix(in oklch, var(--background) 88%, transparent);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 oklch(0.92 0.01 230);
+  backdrop-filter: blur(10px);
+}
+.plumbing-brand-word {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.plumbing-brand-word .brand-navy {
+  color: var(--tufont-navy);
+}
+.plumbing-brand-word .brand-cyan {
+  color: var(--tufont-teal);
+}
+.plumbing-btn-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  background: var(--tufont-cyan);
+  color: var(--tufont-navy);
+  padding: 0.55rem 1.15rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  box-shadow: 0 4px 14px oklch(0.75 0.12 195 / 35%);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.plumbing-btn-phone:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px oklch(0.75 0.12 195 / 45%);
+}
+.plumbing-hero-tufont {
+  position: relative;
+  background: transparent;
+}
+.plumbing-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4.2vw, 2.65rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--tufont-teal);
+}
+.plumbing-hero-lead {
+  margin-top: 1rem;
+  max-width: 34rem;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--tufont-muted);
+}
+.plumbing-checklist {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.65rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--tufont-navy);
+}
+.plumbing-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.plumbing-checklist svg {
+  color: var(--tufont-teal);
+  flex-shrink: 0;
+  padding: 0.15rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--tufont-cyan-soft) 45%, white);
+}
+.plumbing-btn-dark {
+  display: inline-flex;
+  margin-top: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--tufont-navy);
+  color: white;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background 0.2s, transform 0.2s;
+}
+.plumbing-btn-dark:hover {
+  background: oklch(0.22 0.04 250);
+  transform: translateY(-1px);
+}
+.plumbing-hero-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+}
+.plumbing-hero-ring {
+  position: relative;
+  width: min(100%, 380px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px dashed color-mix(in oklch, var(--tufont-teal) 45%, var(--border));
+  padding: 1.25rem;
+  box-shadow: 0 0 0 12px color-mix(in oklch, var(--tufont-cyan) 18%, transparent);
+}
+.plumbing-hero-ring::before {
+  content: "";
+  position: absolute;
+  inset: -1.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklch, var(--tufont-cyan-soft) 55%, transparent);
+  pointer-events: none;
+}
+.plumbing-hero-ring img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.plumbing-hero-offer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  max-width: 11rem;
+  border-radius: 0.5rem;
+  background: var(--tufont-navy);
+  color: white;
+  padding: 0.65rem 0.85rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+  box-shadow: 0 12px 32px oklch(0.2 0.04 250 / 25%);
+}
+.plumbing-lead-strip {
+  border-block: 1px solid var(--border);
+  background: color-mix(in oklch, var(--background) 82%, transparent);
+  backdrop-filter: blur(6px);
+}
+.plumbing-lead-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 1rem;
+  padding-block: 1.25rem;
+}
+.plumbing-lead-inner p {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--tufont-navy);
+}
+.plumbing-lead-cta {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.35rem;
+  background: var(--tufont-cyan);
+  color: var(--tufont-navy);
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.plumbing-section-servicios,
+.plumbing-section-trabajos {
+  background: transparent;
+}
+.plumbing-service-cta {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.35rem;
+  background: var(--tufont-cyan);
+  padding: 0.65rem 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--tufont-navy);
+  transition: filter 0.2s, transform 0.2s;
+}
+.plumbing-service-cta:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+.plumbing-service-wa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.35rem;
+  border: 1px solid var(--border);
+  padding: 0.65rem;
+  color: var(--tufont-muted);
+  transition: border-color 0.2s, color 0.2s;
+}
+.plumbing-service-wa:hover {
+  border-color: var(--tufont-teal);
+  color: var(--tufont-teal);
+}
+.plumbing-section-label {
+  display: none;
+}
+.plumbing-trust {
+  background: color-mix(in oklch, var(--background) 78%, transparent);
+  backdrop-filter: blur(4px);
+}
+.plumbing-editorial {
+  background: color-mix(in oklch, var(--secondary) 62%, transparent);
+  border-block: 1px solid var(--border);
+  backdrop-filter: blur(4px);
+}
+.plumbing-site footer {
+  background: color-mix(in oklch, var(--secondary) 68%, transparent);
+  backdrop-filter: blur(8px);
+}
+.plumbing-editorial h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--tufont-teal);
+}
+.plumbing-editorial p,
+.plumbing-editorial li {
+  color: var(--tufont-muted);
+  line-height: 1.7;
+}
+.plumbing-include-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--card);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  box-shadow: 0 8px 24px oklch(0.2 0.02 230 / 5%);
+}
+.plumbing-include-card svg {
+  margin-inline: auto;
+  color: var(--tufont-teal);
+}
+.plumbing-include-card h3 {
+  margin-top: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tufont-navy);
+}
+.plumbing-include-card p {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--tufont-muted);
+}
+.plumbing-price-spotlight {
+  border-radius: var(--radius-xl);
+  border: 2px solid color-mix(in oklch, var(--tufont-teal) 25%, var(--border));
+  background: linear-gradient(180deg, white, oklch(0.97 0.02 195));
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+.plumbing-price-spotlight .price-big {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 800;
+  color: var(--tufont-teal);
+  line-height: 1;
+}
+.plumbing-compare {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.plumbing-compare table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.plumbing-compare th,
+.plumbing-compare td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.plumbing-compare th {
+  background: var(--secondary);
+  font-weight: 700;
+  color: var(--tufont-navy);
+}
+.plumbing-compare td:last-child {
+  color: var(--tufont-teal);
+  font-weight: 600;
+}
+.plumbing-service-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--card);
+  overflow: hidden;
+  box-shadow: 0 8px 28px oklch(0.2 0.02 230 / 6%);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s;
+}
+.plumbing-service-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklch, var(--tufont-teal) 35%, var(--border));
+  box-shadow: 0 14px 36px oklch(0.2 0.02 230 / 9%);
+}
+.plumbing-service-card h3 {
+  color: var(--tufont-teal);
+}
+.plumbing-gallery-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 768px) {
+  .plumbing-gallery-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 140px;
+  }
+  .plumbing-gallery-item--tall {
+    grid-row: span 2;
+  }
+  .plumbing-gallery-item--wide {
+    grid-column: span 2;
+  }
+}
+.plumbing-gallery-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--secondary);
+}
+.plumbing-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.plumbing-gallery-item:hover img {
+  transform: scale(1.04);
+}
+.plumbing-gallery-tag {
+  position: absolute;
+  left: 0.65rem;
+  bottom: 0.65rem;
+  border-radius: 999px;
+  background: var(--tufont-navy);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+}
+.plumbing-cta-band {
+  background: var(--tufont-teal);
+  color: white;
+}
+.plumbing-cta-band .font-display {
+  color: white;
+}
 .auth-page {
   background:
     radial-gradient(ellipse 80% 50% at 50% -20%, color-mix(in oklch, var(--accent) 12%, transparent), transparent),
@@ -394,34 +883,39 @@ body { font-family: var(--font-body); }
   padding: 1.5rem 1.35rem;
   box-shadow: 0 20px 44px oklch(0.26 0.03 250 / 11%);
 }
+.plumbing-site .whatsapp-fab,
 .whatsapp-fab {
-  position: fixed;
-  right: 1.25rem;
-  bottom: 1.25rem;
-  z-index: 45;
-  display: flex;
+  position: fixed !important;
+  right: 1.5rem !important;
+  bottom: 1.5rem !important;
+  z-index: 9999 !important;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 999px;
-  background: #25d366;
-  color: #fff;
-  box-shadow: 0 10px 28px oklch(0.35 0.12 145 / 35%);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 9999px;
+  background: #25d366 !important;
+  color: #fff !important;
+  box-shadow: 0 10px 28px rgba(37, 211, 102, 0.45), 0 4px 12px rgba(0, 0, 0, 0.16);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  pointer-events: auto !important;
 }
+.plumbing-site .whatsapp-fab:hover,
 .whatsapp-fab:hover {
-  transform: scale(1.06);
-  box-shadow: 0 14px 32px oklch(0.35 0.12 145 / 42%);
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 16px 36px rgba(37, 211, 102, 0.58), 0 6px 16px rgba(0, 0, 0, 0.2);
 }
+.plumbing-site .whatsapp-fab:focus-visible,
 .whatsapp-fab:focus-visible {
-  outline: 2px solid var(--ring);
+  outline: 3px solid #25d366;
   outline-offset: 3px;
 }
 @media (max-width: 640px) {
+  .plumbing-site .whatsapp-fab,
   .whatsapp-fab {
-    right: 1rem;
-    bottom: 1rem;
+    right: 1rem !important;
+    bottom: 1rem !important;
     width: 3.25rem;
     height: 3.25rem;
   }

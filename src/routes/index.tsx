@@ -1,387 +1,653 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  Phone, MessageCircle, Clock, MapPin, ShieldCheck, ArrowRight, CheckCircle2,
-  Star, ChevronDown, Wrench, Building2, Paintbrush,
-  Droplets, DoorOpen, Wind, Hammer, Layers, Menu, Package, KeyRound, Users, LogIn,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Droplets,
+  LogIn,
+  MapPin,
+  Menu,
+  MessageCircle,
+  Phone,
+  ShieldCheck,
+  Star,
+  Users,
+  Wrench,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { BusinessReviews } from "@/components/business-reviews";
-import { WhatsAppFloatButton } from "@/components/whatsapp-float-button";
+import { PlumbingFaqSection } from "@/components/plumbing-faq-section";
 import { PageSection, SectionHeader } from "@/components/page-section";
 import { SolicitudPresupuestoForm } from "@/components/solicitud-presupuesto-form";
+import { WhatsAppFloatButton } from "@/components/whatsapp-float-button";
 import { useAuth } from "@/hooks/auth-context";
 import { STAFF_ROLES } from "@/lib/auth-demo";
 import { AYOX_SERVICE_NAMES } from "@/lib/ayox-service-names";
+import {
+  FONTANERIA_SERVICES,
+  GALLERY_ITEMS,
+  PRICE_BANDS,
+} from "@/lib/fontaneria-public";
 import { createSolicitud, emptySolicitudFields, openWhatsApp } from "@/lib/solicitud-presupuesto";
-import heroAsset from "@/assets/reformas.jpg.asset.json";
-const assetFiles = import.meta.glob<{ default: { url: string } }>("../assets/*.asset.json", { eager: true });
-const serviceImage = (slug: string) => assetFiles[`../assets/${slug}.jpg.asset.json`]?.default.url;
+
 const TEL = "tel:+34666854310";
 const WA = "https://wa.me/34666854310";
 const EMAIL = "mailto:ayoxservicios@gmail.com";
 
+const zonas = [
+  "Alicante centro",
+  "Playa de San Juan",
+  "El Campello",
+  "Mutxamel",
+  "Sant Joan d'Alacant",
+  "San Vicente del Raspeig",
+  "Albufereta",
+  "Villafranqueza",
+];
+
+const faqs = [
+  {
+    q: "¿Atendéis urgencias de fontanería?",
+    a: "Sí, 24 horas. Llama al 666 854 310 y te indicamos cuándo podemos estar en tu domicilio.",
+  },
+  {
+    q: "¿Cuánto cuesta una visita?",
+    a: "Te damos tarifas orientativas en la web. El importe cerrado se confirma en casa antes de empezar.",
+  },
+  {
+    q: "¿Hacéis reformas de baño completas?",
+    a: "Sí: desagües, grifería, plato o ducha y coordinación de alicatado. Presupuesto por escrito.",
+  },
+  {
+    q: "¿Puedo enviar una foto por WhatsApp?",
+    a: "Es lo más útil. Muchas veces identificamos la pieza y el trabajo antes de la visita.",
+  },
+  {
+    q: "¿Trabajáis en comunidades de vecinos?",
+    a: "Sí: bajantes, contadores, averías en zonas comunes y mantenimiento programado.",
+  },
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AYOX Servicios | Servicios Integrales 24h en Alicante" },
-      { name: "description", content: "Fontanería, persianas, aire acondicionado, pintura, reformas, cerrajería y mantenimiento en Alicante. Urgencias 24 horas, presupuesto cerrado y equipo local." },
-      { property: "og:title", content: "AYOX Servicios · Servicios Integrales 24h en Alicante" },
-      { property: "og:description", content: "Cuando algo se rompe, alguien contesta. Equipo local en Alicante, urgencias 24h." },
+      { title: "AYOX Fontanería | Urgencias y reformas de baño en Alicante" },
+      {
+        name: "description",
+        content:
+          "Fontanería profesional en Alicante: fugas, atascos, calentadores, baños y desagües. Urgencias 24 h, presupuesto cerrado y fotos reales de nuestros trabajos.",
+      },
+      { property: "og:title", content: "AYOX Fontanería · Alicante" },
+      {
+        property: "og:description",
+        content: "Especialistas en fontanería. Urgencias 24 h, reformas de baño y instalaciones.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      
-      
     ],
   }),
   component: Index,
 });
 
-const services = [
-  { slug: "fontaneria", name: "Fontanería", icon: Droplets, items: ["Fugas de agua y humedades", "Atascos de fregadero y baño", "Calentadores y termos", "Grifos y monomandos", "Desagües y bajantes", "Sustitución de tuberías", "Cisternas y sanitarios", "Detección sin obra"] },
-  { slug: "persianas", name: "Persianas", icon: Layers, items: ["Cintas y recogedores", "Lamas rotas", "Motorización", "Poleas y ejes", "Cierres metálicos de local", "Mosquiteras"] },
-  { slug: "aire-acondicionado", name: "Aire acondicionado", icon: Wind, items: ["Instalación split y conductos", "Recarga de gas", "Limpieza de filtros", "Reparación de averías", "Mantenimiento anual", "Bomba de calor"] },
-  { slug: "pintura", name: "Pintura", icon: Paintbrush, items: ["Viviendas completas", "Zonas comunes", "Locales y oficinas", "Fachadas", "Alisado de paredes", "Esmaltado de carpintería"] },
-  { slug: "reformas-y-albanileria", name: "Reformas y albañilería", icon: Hammer, items: ["Baños completos", "Cocinas", "Alicatado y solado", "Pequeñas obras", "Tabiquería", "Impermeabilización"] },
-  { slug: "mantenimiento-de-comunidades", name: "Mantenimiento de comunidades", icon: Users, items: ["Mantenimiento de comunidades", "Zonas comunes", "Portales y escaleras", "Atención prioritaria", "Tarifas pactadas", "Averías recurrentes"] },
-  { slug: "reformas-de-locales-y-comercios", name: "Reformas de locales y comercios", icon: Building2, items: ["Adecuación de locales", "Oficinas", "Reforma de escaparates", "Mantenimiento mensual", "Trabajos fuera de horario", "Coordinación de gremios"] },
-  { slug: "pladur", name: "Pladur", icon: Layers, items: ["Tabiques y divisiones", "Falsos techos", "Armarios empotrados", "Aislamiento acústico", "Trasdosados", "Focos y registros"] },
-  { slug: "montaje-de-muebles", name: "Montaje de muebles", icon: Package, items: ["Muebles de IKEA", "Armarios y vestidores", "Estanterías y baldas", "Cocinas de montaje", "Anclaje a pared", "Retirada de embalajes"] },
-  { slug: "cerrajeria", name: "Cerrajería", icon: KeyRound, items: ["Apertura de puertas", "Cambio de cerradura", "Bombines antibumping", "Cerraduras de seguridad", "Puertas acorazadas", "Persianas metálicas", "Buzones y candados", "Copia de llaves"] },
-];
-
-const zonas = ["Alicante centro", "Playa de San Juan", "El Campello", "Mutxamel", "Sant Joan d'Alacant", "San Vicente del Raspeig", "Albufereta", "Villafranqueza"];
-
-const faqs = [
-  { q: "¿Cuánto cuesta que vengáis?", a: "El desplazamiento y la mano de obra están en la página de precios. Antes de empezar cualquier reparación te damos un presupuesto cerrado; si no te encaja, no hay compromiso." },
-  { q: "¿Cuánto tardáis en llegar?", a: "Depende de la zona y de la hora. En una urgencia te decimos por teléfono un tiempo real, no uno de folleto — y si vamos a tardar, lo dices tú si esperas o no." },
-  { q: "¿Qué métodos de pago aceptáis?", a: "Efectivo, tarjeta, Bizum y transferencia." },
-  { q: "¿Trabajáis fines de semana y festivos?", a: "Sí. Las urgencias se atienden todos los días del año. Los trabajos programados los concertamos de lunes a sábado." },
-  { q: "¿Puedo mandaros una foto antes?", a: "Es lo que más ayuda. Mandándonos una foto por WhatsApp muchas veces sabemos qué pieza llevar, y eso ahorra una visita." },
-];
-
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const { user } = useAuth();
 
   const navLinks: [string, string][] = [
     ["Servicios", "servicios"],
-    ["Precios", "precios"],
-    ["Nosotros", "nosotros"],
-    ["Opiniones", "opiniones"],
+    ["Trabajos", "trabajos"],
+    ["Qué incluye", "incluye"],
+    ["Precio", "precios"],
+    ["Zonas", "zona"],
     ["Contacto", "reservar"],
   ];
 
+  const heroBullets = [
+    "Urgencias de fontanería 24 h",
+    "Presupuesto cerrado antes de obrar",
+    "Equipo local en Alicante",
+    "Sin multiservicios: solo fontanería",
+  ];
+
+  const includeItems = [
+    {
+      icon: Clock,
+      title: "Respuesta rápida",
+      text: "Te damos cita el mismo día laborable cuando es posible.",
+    },
+    {
+      icon: Wrench,
+      title: "Reparaciones habituales",
+      text: "Fugas, atascos, grifería, calentadores y desagües.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Mano de obra clara",
+      text: "Sabes qué pagas antes de que empecemos la obra.",
+    },
+    {
+      icon: Users,
+      title: "Fontanero de confianza",
+      text: "El mismo equipo te atiende por teléfono y en casa.",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background text-foreground font-body antialiased">
-      <div className="utility-bar"><div className="page-width flex items-center justify-between gap-4 py-2"><span className="flex items-center gap-2"><Clock className="size-3.5" /> Atención de urgencias 24 horas</span><a href={EMAIL} className="hidden sm:block">ayoxservicios@gmail.com</a><span className="flex items-center gap-2"><MapPin className="size-3.5" /> Alicante y alrededores</span></div></div>
-      <header className="site-header">
-        <div className="page-width flex h-20 items-center justify-between gap-5">
-          <a href="#" className="brand" aria-label="AYOX Servicios, inicio">AYOX<span className="text-accent">.</span><small>SERVICIOS INTEGRALES</small></a>
-          <nav className="hidden items-center gap-6 text-sm font-semibold lg:flex" aria-label="Principal">
-            {navLinks.map(([name, id]) => (
-              <a key={id} href={`#${id}`} className="transition-colors hover:text-accent">{name}</a>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2 sm:gap-3">
-            {user && STAFF_ROLES.includes(user.role) ? (
-              <Button asChild className="hidden sm:inline-flex bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link to="/panel">Ir al panel</Link>
-              </Button>
-            ) : (
-              <Button
-                asChild
-                variant="ghost"
-                className="hidden text-sm font-semibold text-muted-foreground hover:text-foreground sm:inline-flex"
-              >
-                <Link to="/login">
-                  <LogIn className="size-4" aria-hidden />
-                  Iniciar sesión
-                </Link>
-              </Button>
-            )}
-            <Button asChild className="hidden sm:inline-flex" variant="outline"><a href={TEL}><Phone />666 854 310</a></Button>
-            <Button asChild className="hidden lg:inline-flex bg-accent text-accent-foreground hover:bg-accent/90"><a href="#reservar">Pedir presupuesto <ArrowRight /></a></Button>
-            <Button variant="outline" className="lg:hidden" aria-expanded={menuOpen} aria-label="Abrir menú" onClick={() => setMenuOpen(!menuOpen)}><Menu /></Button>
+    <div className="plumbing-site min-h-screen bg-background text-foreground font-body antialiased">
+      {/* Fondo de tuberías en toda la página */}
+      <div className="plumbing-watermark-bg" aria-hidden="true">
+        <div className="plumbing-watermark-track plumbing-watermark-track--left" />
+        <div className="plumbing-watermark-track plumbing-watermark-track--right" />
+      </div>
+
+      {/* Barra superior y navegación fijas (sticky al hacer scroll) */}
+      <div className="plumbing-sticky-bar">
+        <div className="plumbing-utility">
+          <div className="page-width flex flex-wrap items-center justify-between gap-3 py-2">
+            <span className="flex items-center gap-2 font-semibold">
+              <Droplets className="size-3.5" aria-hidden />
+              Fontanería · Urgencias 24 h
+            </span>
+            <a href={EMAIL} className="hidden hover:underline sm:block">
+              ayoxservicios@gmail.com
+            </a>
+            <span className="flex items-center gap-2">
+              <MapPin className="size-3.5" aria-hidden /> Alicante y comarca
+            </span>
           </div>
         </div>
-        {menuOpen && (
-          <nav className="page-width grid gap-4 border-t border-border py-5 lg:hidden" aria-label="Menú móvil">
-            {navLinks.map(([name, id]) => (
-              <a href={`#${id}`} key={id} onClick={() => setMenuOpen(false)}>{name}</a>
-            ))}
-            <a href="#faq" onClick={() => setMenuOpen(false)}>Preguntas frecuentes</a>
-            {user && STAFF_ROLES.includes(user.role) ? (
-              <Link to="/panel" onClick={() => setMenuOpen(false)} className="font-semibold text-accent">
-                Ir al panel
-              </Link>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => setMenuOpen(false)}
-                className="inline-flex items-center gap-2 font-semibold text-foreground"
-              >
-                <LogIn className="size-4" aria-hidden />
-                Iniciar sesión (equipo)
-              </Link>
-            )}
-          </nav>
-        )}
-      </header>
-      <section className="home-cover"><img src={heroAsset.url} alt="Trabajo de albañilería" className="cover-photo" fetchPriority="high" /><div className="cover-shade" /><div className="page-width relative py-16 lg:py-20"><p className="cover-eyebrow">HOGARES · COMUNIDADES · NEGOCIOS</p><h1 className="mt-5 max-w-2xl font-display text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">AYOX Servicios.<br />Reparaciones y reformas<br />en Alicante.</h1><p className="mt-6 max-w-lg text-base leading-relaxed text-cover-foreground/85 sm:text-lg">Fontanería, cerrajería, climatización y mantenimiento. Un equipo local para las urgencias de hoy y los proyectos de mañana.</p><div className="mt-8 flex flex-wrap gap-3"><Button asChild size="lg" className="h-12 bg-accent text-accent-foreground hover:bg-accent/90"><a href="#reservar">Solicitar presupuesto <ArrowRight /></a></Button><Button asChild size="lg" variant="outline" className="h-12 border-cover-foreground/40 bg-transparent text-cover-foreground hover:bg-cover-foreground/10 hover:text-cover-foreground"><a href={TEL}><Phone />Urgencias 24h</a></Button></div><a href="#opiniones" className="mt-9 inline-flex items-center gap-3 text-sm"><Star className="size-4 fill-current text-rating" /><strong>4,7 / 5 en Google</strong><span className="text-cover-foreground/70">27 reseñas</span><ArrowRight className="size-4" /></a></div></section>
 
-      <main className="page-main">
-      <section className="trust-strip" aria-label="Ventajas">
-        <div className="page-width grid gap-4 py-8 md:grid-cols-3">
-          {[{ icon: Phone, title: "Atención directa", text: "Un equipo local, sin centralitas." }, { icon: ShieldCheck, title: "Presupuesto antes de empezar", text: "Conoce el importe de tu reparación." }, { icon: MessageCircle, title: "Cuéntanos tu avería", text: "Envíanos una foto por WhatsApp." }].map((x) => (
-            <div key={x.title} className="trust-strip-item flex items-center gap-4">
-              <x.icon className="size-6 shrink-0 text-accent" />
-              <div><p className="text-sm font-bold">{x.title}</p><p className="mt-1 text-xs text-muted-foreground">{x.text}</p></div>
+        <header className="plumbing-header">
+          <div className="page-width flex h-[4.5rem] items-center justify-between gap-4">
+            <a href="#" className="leading-tight" aria-label="AYOX Fontanería, inicio">
+              <span className="plumbing-brand-word">
+                <span className="brand-navy">AY</span>
+                <span className="brand-cyan">OX</span>
+              </span>
+              <small className="mt-1 block text-[10px] font-semibold tracking-wide text-muted-foreground">
+                servicios de fontanería · Alicante
+              </small>
+            </a>
+            <nav className="hidden items-center gap-6 text-sm font-semibold lg:flex" aria-label="Principal">
+              {navLinks.map(([name, id]) => (
+                <a key={id} href={`#${id}`} className="transition-colors hover:text-accent">
+                  {name}
+                </a>
+              ))}
+            </nav>
+            <div className="flex items-center gap-2">
+              {user && STAFF_ROLES.includes(user.role) ? (
+                <Button asChild size="sm" className="hidden sm:inline-flex">
+                  <Link to="/panel">Panel</Link>
+                </Button>
+              ) : (
+                <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                  <Link to="/login">
+                    <LogIn className="size-4" aria-hidden /> Equipo
+                  </Link>
+                </Button>
+              )}
+              <a href={TEL} className="plumbing-btn-phone hidden md:inline-flex">
+                <Phone className="size-4" aria-hidden /> 666 854 310
+              </a>
+              <Button asChild size="sm" className="hidden lg:inline-flex bg-primary text-primary-foreground">
+                <a href="#reservar">
+                  Pedir presupuesto <ArrowRight className="size-4" />
+                </a>
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="lg:hidden"
+                aria-expanded={menuOpen}
+                aria-label="Abrir menú"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                <Menu />
+              </Button>
             </div>
-          ))}
+          </div>
+          {menuOpen ? (
+            <nav className="page-width grid gap-3 border-t border-border py-4 lg:hidden" aria-label="Menú móvil">
+              {navLinks.map(([name, id]) => (
+                <a key={id} href={`#${id}`} onClick={() => setMenuOpen(false)}>
+                  {name}
+                </a>
+              ))}
+              <a href={TEL} onClick={() => setMenuOpen(false)} className="font-semibold text-accent">
+                Llamar 666 854 310
+              </a>
+            </nav>
+          ) : null}
+        </header>
+      </div>
+
+      <section className="plumbing-hero-tufont">
+        <div className="page-width grid items-center gap-10 py-10 lg:grid-cols-2 lg:py-14">
+          <div>
+            <h1 className="plumbing-hero-title">
+              Fontanero en Alicante a domicilio, con urgencias 24 horas
+            </h1>
+            <p className="plumbing-hero-lead">
+              Evita esperas, precios imprevistos y malas experiencias. Con AYOX tienes fontanería
+              clara, rápida y sin sorpresas: servicios, fotos de obra y presupuesto cerrado.
+            </p>
+            <ul className="plumbing-checklist">
+              {heroBullets.map((b) => (
+                <li key={b}>
+                  <CheckCircle2 className="size-5" aria-hidden />
+                  {b}
+                </li>
+              ))}
+            </ul>
+            <a href="#reservar" className="plumbing-btn-dark">
+              ¡Necesito un fontanero en ALICANTE!
+            </a>
+          </div>
+          <div className="plumbing-hero-visual">
+            <div className="plumbing-hero-ring">
+              <img
+                src="/assets/galeria/hero-bano.png"
+                alt="Reforma de baño realizada por AYOX Fontanería"
+                fetchPriority="high"
+              />
+              <p className="plumbing-hero-offer">
+                Presupuesto cerrado
+                <br />
+                antes de empezar
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <PageSection id="servicios" variant="default">
-        <SectionHeader
-          eyebrow="Qué hacemos"
-          title="Un equipo. Todos los servicios."
-          description="Reparaciones puntuales, mantenimiento y reformas. Encuentra el servicio que necesitas y consulta todos los trabajos que realizamos."
-          action={
-            <Button asChild className="bg-primary text-primary-foreground hover:opacity-90">
-              <a href="#reservar">Pedir presupuesto <ArrowRight className="size-4" /></a>
-            </Button>
-          }
-        />
-
-        <div className="service-grid grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((s) => (
-            <article key={s.slug} className="service-item service-card group flex flex-col">
-              <div className="relative overflow-hidden">
-                <img src={serviceImage(s.slug)} alt={s.name} loading="lazy" className="aspect-[16/9] w-full object-cover transition duration-500 group-hover:scale-105" />
-                <span className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/90 text-accent backdrop-blur">
-                  <s.icon className="h-5 w-5" />
-                </span>
-              </div>
-              <div className="service-card-body">
-                <h3 className="font-display text-xl font-bold">{s.name}</h3>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cómo lo hacemos</p>
-                <ul className="mt-3 grid gap-1.5 text-sm text-muted-foreground">
-                  {s.items.map((it) => (
-                    <li key={it} className="flex items-start gap-2">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />{it}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-auto flex gap-2 pt-6">
-                  <a href="#reservar" className="flex-1 rounded-md bg-primary px-4 py-2.5 text-center text-sm font-semibold text-primary-foreground transition hover:opacity-90">Pedir presupuesto</a>
-                  <a href={TEL} aria-label={`Llamar por ${s.name}`} className="flex items-center justify-center rounded-md border border-border px-3 transition hover:border-accent hover:text-accent"><Phone className="h-4 w-4" /></a>
-                </div>
-              </div>
-            </article>
-          ))}
+      <section className="plumbing-lead-strip" aria-label="Contacto rápido">
+        <div className="page-width plumbing-lead-inner">
+          <p>¿Quieres presupuesto hoy? Cuéntanos la avería o mándanos una foto.</p>
+          <a href="#reservar" className="plumbing-lead-cta">
+            Solicitar visita
+          </a>
+          <a href={WA} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-[var(--tufont-teal)] hover:underline">
+            WhatsApp con foto
+          </a>
         </div>
-      </PageSection>
+      </section>
 
-      <PageSection id="precios" variant="muted">
-        <div className="grid items-center gap-12 lg:grid-cols-2">
-          <div>
-            <SectionHeader
-              eyebrow="Precios"
-              title="Precios claros desde el principio."
-              description="Consulta las tarifas orientativas de nuestros servicios. El importe definitivo se confirma antes de comenzar el trabajo."
-            />
-            <p className="-mt-6 max-w-xl leading-relaxed text-muted-foreground">
-              La tarifa por servicio está en la página de precios, siempre actualizada. Los importes que ves allí son orientativos: el presupuesto en firme te lo damos en tu domicilio.
-            </p>
-            <Button asChild className="mt-8 bg-accent font-bold text-accent-foreground hover:bg-accent/90">
-              <a href="https://ayox-servicios.es/precios" target="_blank" rel="noopener noreferrer">
-                Ver la tarifa completa <ArrowRight className="size-4" />
+      <main className="page-main">
+        <PageSection id="servicios" variant="default" className="plumbing-section-servicios !border-t-0">
+          <SectionHeader
+            eyebrow="Servicios de fontanería"
+            title="Lo que resolvemos cada día"
+            description="Seis líneas de trabajo claras. Elige la tuya y pide presupuesto sin rodeos."
+            action={
+              <a href={TEL} className="plumbing-btn-phone shrink-0">
+                <Phone className="size-4" aria-hidden /> Urgencia ahora
               </a>
-            </Button>
+            }
+          />
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {FONTANERIA_SERVICES.map((s) => (
+              <article key={s.id} className="plumbing-service-card flex flex-col">
+                <div className="relative h-44 overflow-hidden">
+                  <img src={s.image} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  <span className="absolute left-3 top-3 flex size-10 items-center justify-center rounded-md bg-[var(--tufont-cyan)] text-[var(--tufont-navy)] shadow-sm">
+                    <s.icon className="size-5" aria-hidden />
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <h3 className="font-display text-xl font-bold">{s.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{s.description}</p>
+                  <ul className="mt-4 space-y-1.5 text-sm text-muted-foreground">
+                    {s.points.map((p) => (
+                      <li key={p} className="flex gap-2">
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-auto flex gap-2 pt-5">
+                    <a href="#reservar" className="plumbing-service-cta">
+                      Pedir presupuesto
+                    </a>
+                    <a
+                      href={WA}
+                      className="plumbing-service-wa"
+                      aria-label={`WhatsApp ${s.title}`}
+                    >
+                      <MessageCircle className="size-4" />
+                    </a>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
-          <div className="grid gap-3">
+        </PageSection>
+
+        <PageSection id="trabajos" variant="default" className="plumbing-section-trabajos">
+          <SectionHeader
+            eyebrow="Trabajos realizados"
+            title="Fontanería hecha en Alicante"
+            description="Fotos de reformas de baño, desagües, bombas de presión e instalaciones recientes."
+          />
+          <div className="plumbing-gallery-grid">
+            {GALLERY_ITEMS.map((item, i) => (
+              <figure
+                key={item.src}
+                className={`plumbing-gallery-item ${i === 0 ? "plumbing-gallery-item--tall plumbing-gallery-item--wide" : i === 3 ? "plumbing-gallery-item--wide" : ""}`}
+              >
+                <img src={item.src} alt={item.alt} loading="lazy" />
+                <figcaption className="plumbing-gallery-tag">{item.tag}</figcaption>
+              </figure>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <a href={WA} target="_blank" rel="noopener noreferrer" className="plumbing-btn-phone inline-flex px-6 py-3 text-base">
+              Quiero un trabajo así <ArrowRight className="size-4" />
+            </a>
+          </div>
+        </PageSection>
+
+        <section className="plumbing-editorial">
+          <div className="page-width grid gap-8 py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
+            <div>
+              <h2>Las averías por las que más nos llaman en Alicante</h2>
+              <p className="mt-4">
+                En viviendas de los años 70–90 siguen vivas muchas tuberías y griferías originales.
+                En el centro y barrios cercanos, la humedad castiga juntas y latiguillos. En vivienda
+                más nueva, lo habitual son calentadores, monomandos y atascos en cocina.
+              </p>
+            </div>
+            <ul className="mt-2 space-y-3 text-sm font-medium">
+              {[
+                "Griferías y cisternas con pérdidas continuas.",
+                "Atascos en fregadero, lavabo o ducha.",
+                "Fugas en tuberías visibles y llaves de paso.",
+                "Calentadores que no encienden o pierden agua.",
+              ].map((t) => (
+                <li key={t} className="flex gap-2">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[var(--tufont-teal)]" aria-hidden />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <PageSection id="incluye" variant="default">
+          <SectionHeader
+            eyebrow="Qué incluye trabajar con AYOX"
+            title="Fontanería directa, sin intermediarios"
+            description="No somos un marketplace ni un seguro: un equipo de fontanería local con condiciones claras."
+          />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {includeItems.map((item) => (
+              <article key={item.title} className="plumbing-include-card">
+                <item.icon className="size-9" aria-hidden />
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </PageSection>
+
+        <section className="plumbing-trust border-y border-border" aria-label="Ventajas">
+          <div className="page-width grid gap-4 py-8 md:grid-cols-3">
             {[
-              { icon: ShieldCheck, t: "Presupuesto cerrado", d: "Antes de empezar cualquier reparación te damos un presupuesto cerrado; si no te encaja, no hay compromiso." },
-              { icon: Clock, t: "Respuesta el mismo día", d: "Las solicitudes de presupuesto se responden el mismo día. Las urgencias, al momento por teléfono." },
-              { icon: Wrench, t: "Sin sorpresas", d: "Los importes publicados son orientativos; el precio en firme se confirma en tu domicilio antes de trabajar." },
-            ].map((c) => (
-              <div key={c.t} className="info-card flex gap-5">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent"><c.icon className="h-6 w-6" /></span>
+              { icon: Phone, title: "Contesta un fontanero", text: "Sin centralitas ni filas de call center." },
+              { icon: ShieldCheck, title: "Precio antes de obrar", text: "Presupuesto cerrado en tu casa." },
+              { icon: MessageCircle, title: "Foto por WhatsApp", text: "Llevamos el material adecuado a la primera." },
+            ].map((x) => (
+              <div key={x.title} className="trust-strip-item flex items-center gap-4 bg-card/80">
+                <x.icon className="size-6 shrink-0 text-accent" aria-hidden />
                 <div>
-                  <p className="font-display text-lg font-bold">{c.t}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{c.d}</p>
+                  <p className="text-sm font-bold">{x.title}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{x.text}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </PageSection>
+        </section>
 
-      <PageSection id="nosotros" variant="dark">
-        <div className="grid items-center gap-14 lg:grid-cols-2">
-          <div>
-            <SectionHeader
-              eyebrow="Nosotros"
-              title="Cerca de ti. Con oficio propio."
-            />
-            <p className="-mt-4 text-lg leading-relaxed text-primary-foreground/80">
-              Cuando llamas a AYOX Servicios no entras en una cola. Contesta alguien que conoce Alicante, que sabe quién está más cerca y que puede decirte a qué hora llegamos.
-            </p>
-            <p className="mt-4 leading-relaxed text-primary-foreground/80">
-              Trabajamos con oficio propio. El profesional que va a tu casa es el mismo que fue la última vez, no un autónomo distinto cada semana.
-            </p>
-            <p className="mt-4 leading-relaxed text-primary-foreground/80">
-              Estamos en Calle Valdés, 03001 Alicante, y cubrimos la ciudad y su comarca de lunes a domingo.
-            </p>
-            <Button asChild className="mt-8 bg-accent font-bold text-accent-foreground hover:bg-accent/90">
-              <a href="#reservar">Pedir presupuesto <ArrowRight className="size-4" /></a>
-            </Button>
-          </div>
-          <div className="info-card border-l-4 border-l-accent lg:ml-4">
-            <p className="font-display text-3xl font-bold">Hogares, comunidades<br />y negocios.</p>
-            <p className="mt-5 max-w-md leading-relaxed text-primary-foreground/75">Desde una fuga de agua hasta una reforma completa. Coordinamos los distintos oficios para que tengas un único contacto.</p>
-            <div className="mt-8 divide-y divide-primary-foreground/15">
-              {["Reparaciones y urgencias 24h", "Mantenimiento de comunidades", "Reformas de viviendas y locales"].map((t) => (
-                <p key={t} className="flex items-center gap-3 py-4 text-sm"><ArrowRight className="size-4 text-accent" />{t}</p>
+        <PageSection id="precios" variant="muted">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+            <div>
+              <SectionHeader
+                eyebrow="Precio"
+                title="Transparencia antes de la visita"
+                description="Tarifas orientativas. El importe definitivo se confirma en tu domicilio, por escrito."
+              />
+              <div className="plumbing-price-spotlight mt-4 max-w-sm">
+                <p className="text-sm font-bold uppercase tracking-wide text-muted-foreground">
+                  Visita y diagnóstico orientativo
+                </p>
+                <p className="price-big mt-2">{PRICE_BANDS[0]?.price ?? "Desde 45 €"}</p>
+                <p className="mt-2 text-sm text-muted-foreground">Urgencias y reformas: presupuesto cerrado</p>
+                <Button asChild className="mt-6 w-full bg-primary text-primary-foreground">
+                  <a href={TEL}>
+                    <Phone className="size-4" /> Contratar / consultar
+                  </a>
+                </Button>
+              </div>
+            </div>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {PRICE_BANDS.map((b) => (
+                <li key={b.label} className="info-card">
+                  <p className="text-xs font-bold uppercase tracking-wide text-[var(--tufont-teal)]">{b.hint}</p>
+                  <p className="mt-2 font-display text-lg font-bold">{b.label}</p>
+                  <p className="mt-2 text-2xl font-bold text-foreground">{b.price}</p>
+                </li>
               ))}
+            </ul>
+          </div>
+        </PageSection>
+
+        <PageSection id="diferencia" variant="default">
+          <SectionHeader
+            eyebrow="Por qué AYOX"
+            title="¿En qué nos diferenciamos de buscar «a ciegas»?"
+            description="Trabajamos como nos gustaría que trabajaran en nuestra casa: puntualidad, rapidez y honestidad."
+          />
+          <div className="plumbing-compare max-w-3xl">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Buscar sin referencias</th>
+                  <th scope="col">AYOX Fontanería</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["Disponibilidad incierta", "Urgencias 24 h y cita clara"],
+                  ["Precio al final, sin cerrar", "Presupuesto antes de obrar"],
+                  ["Varios oficios mezclados", "Solo fontanería"],
+                  ["Opiniones dispersas", "4,7★ en Google · equipo local"],
+                ].map(([bad, good]) => (
+                  <tr key={bad}>
+                    <td>{bad}</td>
+                    <td>{good}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="#reservar" className="plumbing-btn-dark">
+              Solicitar visita
+            </a>
+            <a href={TEL} className="plumbing-btn-phone">
+              <Phone className="size-4" /> 666 854 310
+            </a>
+          </div>
+        </PageSection>
+
+        <PageSection id="nosotros" variant="dark">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div className="overflow-hidden rounded-xl border border-primary-foreground/15">
+              <img
+                src="/assets/galeria/equipo-ayox.png"
+                alt="Equipo AYOX en obra de fontanería"
+                className="aspect-[4/3] w-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div>
+              <SectionHeader eyebrow="AYOX Fontanería" title="Un oficio, bien hecho" />
+              <p className="-mt-2 text-lg leading-relaxed text-primary-foreground/85">
+                Somos fontaneros en Alicante: instalaciones, urgencias y baños completos. El mismo
+                equipo te atiende por teléfono y en la obra.
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-primary-foreground/80">
+                {[
+                  "Materiales homologados y trabajo limpio",
+                  "Comunidades, viviendas y locales",
+                  "Calle Valdés · 03001 Alicante",
+                ].map((t) => (
+                  <li key={t} className="flex gap-2">
+                    <CheckCircle2 className="size-4 shrink-0 text-accent" aria-hidden />
+                    {t}
+                  </li>
+                ))}
+              </ul>
+              <Button asChild className="mt-8 bg-accent text-accent-foreground">
+                <a href="#reservar">Reservar visita</a>
+              </Button>
             </div>
           </div>
-        </div>
-      </PageSection>
+        </PageSection>
 
-      <PageSection id="zona" variant="contrast">
-        <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.2fr]">
-          <div>
-            <SectionHeader
-              eyebrow="Zona"
-              title="Dónde llegamos"
-              description="Alicante y alrededores. Si tu calle no está en la lista, llámanos igualmente."
-              action={
-                <Button asChild variant="outline">
-                  <a href={TEL}><Phone className="size-4" /> Consultar mi zona</a>
-                </Button>
-              }
-            />
-          </div>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <PageSection id="zona" variant="contrast">
+          <SectionHeader
+            eyebrow="Zona"
+            title="Fontaneros en Alicante y alrededores"
+            description="Desplazamiento rápido en la ciudad y pedanías. ¿Tu calle no aparece? Llámanos."
+            action={
+              <Button asChild variant="outline">
+                <a href={TEL}>
+                  <Phone className="size-4" /> Consultar zona
+                </a>
+              </Button>
+            }
+          />
+          <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {zonas.map((z) => (
-              <li key={z} className="info-card flex items-center gap-3 py-4 text-sm font-medium transition hover:border-accent">
-                <MapPin className="h-4 w-4 shrink-0 text-accent" />{z}
+              <li key={z} className="info-card flex items-center gap-2 py-3 text-sm font-medium">
+                <MapPin className="size-4 shrink-0 text-accent" aria-hidden />
+                {z}
               </li>
             ))}
           </ul>
-        </div>
-      </PageSection>
+        </PageSection>
 
-      <BusinessReviews />
+        <BusinessReviews />
 
-      <PageSection id="faq" variant="default" className="pb-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="eyebrow">Preguntas frecuentes</p>
-          <h2 className="section-title">Antes de llamar</h2>
-        </div>
-        <div className="mx-auto mt-2 max-w-3xl divide-y divide-border rounded-lg border border-border bg-card shadow-sm">
-          {faqs.map((f, i) => (
-            <div key={f.q}>
-              <Button variant="ghost"
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="h-auto w-full justify-between gap-4 whitespace-normal px-6 py-5 text-left font-display text-base font-semibold hover:bg-secondary hover:text-foreground"
-                aria-expanded={openFaq === i}
-              >
-                {f.q}
-                <ChevronDown className={`h-5 w-5 shrink-0 text-accent transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
-              </Button>
-              {openFaq === i && (
-                <p className="px-6 pb-6 leading-relaxed text-muted-foreground">{f.a}</p>
-              )}
+        <PlumbingFaqSection items={faqs} />
+
+        <section className="plumbing-cta-band py-10">
+          <div className="page-width flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+            <div>
+              <p className="font-display text-2xl font-bold">¿Fuga o atasco ahora?</p>
+              <p className="mt-1 text-sm text-primary-foreground/80">Llama o escribe por WhatsApp con una foto.</p>
             </div>
-          ))}
-        </div>
-      </PageSection>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" variant="secondary">
+                <a href={TEL}>
+                  <Phone className="size-4" /> 666 854 310
+                </a>
+              </Button>
+              <Button asChild size="lg" className="bg-accent text-accent-foreground">
+                <a href={WA} target="_blank" rel="noopener noreferrer">
+                  WhatsApp
+                </a>
+              </Button>
+            </div>
+          </div>
+        </section>
 
-      <PageSection id="reservar" variant="dark">
-        <div className="grid gap-14 lg:grid-cols-2">
-          <div>
-            <SectionHeader
-              eyebrow="Reservar"
-              title="Cuéntanos qué pasa"
-              description="Solicita una visita para tu reparación o reforma. Si tienes fotografías de la avería, puedes enviarlas por WhatsApp."
-            />
-            <div className="mt-10 grid gap-4">
-              <a href={TEL} className="flex items-center gap-5 border-b border-primary-foreground/20 py-5">
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/15 text-accent"><Phone className="h-6 w-6" /></span>
-                <div><p className="font-display text-lg font-bold">+34 666 854 310</p><p className="text-sm text-primary-foreground/70">Teléfono · 24 h</p></div>
-              </a>
-              <a href={WA} className="flex items-center gap-5 border-b border-primary-foreground/20 py-5">
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/15 text-accent"><MessageCircle className="h-6 w-6" /></span>
-                <div><p className="font-display text-lg font-bold">WhatsApp</p><p className="text-sm text-primary-foreground/70">Mándanos una foto</p></div>
-              </a>
-              <a href={EMAIL} className="flex items-center gap-5 border-b border-primary-foreground/20 py-5">
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/15 text-accent"><DoorOpen className="h-6 w-6" /></span>
-                <div><p className="font-display text-lg font-bold">ayoxservicios@gmail.com</p><p className="text-sm text-primary-foreground/70">Email</p></div>
-              </a>
-              <div className="flex items-center gap-5 py-5">
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/15 text-accent"><MapPin className="h-6 w-6" /></span>
-                <div><p className="font-display text-lg font-bold">Calle Valdés · 03001 Alicante</p><p className="text-sm text-primary-foreground/70">Base</p></div>
+        <PageSection id="reservar" variant="default">
+          <div className="grid gap-12 lg:grid-cols-2">
+            <div>
+              <SectionHeader
+                eyebrow="Contacto"
+                title="Pide presupuesto de fontanería"
+                description="Cuéntanos la avería. Si puedes, adjunta foto por WhatsApp después de enviar el formulario."
+              />
+              <div className="mt-6 space-y-4 text-sm">
+                <a href={TEL} className="flex items-center gap-3 font-semibold hover:text-accent">
+                  <Phone className="size-5 text-accent" /> +34 666 854 310
+                </a>
+                <a href={EMAIL} className="block hover:text-accent">
+                  ayoxservicios@gmail.com
+                </a>
+                <p className="text-muted-foreground">Calle Valdés · 03001 Alicante</p>
+              </div>
+            </div>
+            <div className="contact-form rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+              <h3 className="font-display text-xl font-bold">Solicitar visita</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Solo servicios de fontanería. Te respondemos el mismo día laborable.
+              </p>
+              <div className="mt-4">
+                <SolicitudPresupuestoForm
+                  serviceOptions={[...AYOX_SERVICE_NAMES]}
+                  initialValues={emptySolicitudFields()}
+                  onSubmit={(values) => {
+                    createSolicitud(values);
+                    openWhatsApp(values);
+                  }}
+                />
               </div>
             </div>
           </div>
-
-          <div className="contact-form h-fit rounded-md bg-card p-6 text-card-foreground sm:p-8">
-            <h3 className="font-display text-2xl font-bold">Solicitar una visita</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Envíanos tu solicitud por WhatsApp. Guardamos una copia en tu navegador y el equipo la
-              gestiona desde el panel interno.
-            </p>
-            <div className="mt-4">
-              <SolicitudPresupuestoForm
-                serviceOptions={[...AYOX_SERVICE_NAMES]}
-                initialValues={emptySolicitudFields()}
-                onSubmit={(values) => {
-                  createSolicitud(values);
-                  openWhatsApp(values);
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </PageSection>
+        </PageSection>
       </main>
 
-      <footer className="border-t border-border bg-background">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-3">
+      <footer className="border-t border-border">
+        <div className="page-width grid gap-8 py-12 md:grid-cols-3">
           <div>
-            <p className="font-display text-2xl font-extrabold">AYOX<span className="text-accent">.</span> Servicios</p>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Servicios Integrales 24h en Alicante y alrededores. Urgencias 24 horas.</p>
+            <p className="font-display text-xl font-bold">
+              AYOX<span className="text-accent">.</span> Fontanería
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Urgencias 24 h · Reformas de baño · Alicante y comarca.
+            </p>
           </div>
           <div>
-            <p className="text-sm font-bold uppercase tracking-wider text-foreground">Servicios</p>
-            <ul className="mt-3 grid grid-cols-1 gap-1.5 text-sm text-muted-foreground">
-              {services.map((s) => <li key={s.slug}><a href="#servicios" className="transition hover:text-accent">{s.name}</a></li>)}
+            <p className="text-xs font-bold uppercase tracking-wider">Servicios</p>
+            <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+              {FONTANERIA_SERVICES.map((s) => (
+                <li key={s.id}>
+                  <a href="#servicios" className="hover:text-accent">
+                    {s.title}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
           <div>
-            <p className="text-sm font-bold uppercase tracking-wider text-foreground">Contacto</p>
-            <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-              <li><a href={TEL} className="transition hover:text-accent">+34 666 854 310</a></li>
-              <li><a href={WA} className="transition hover:text-accent">WhatsApp</a></li>
-              <li><a href={EMAIL} className="transition hover:text-accent">ayoxservicios@gmail.com</a></li>
-              <li>Calle Valdés · 03001 Alicante</li>
+            <p className="text-xs font-bold uppercase tracking-wider">Contacto</p>
+            <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+              <li>
+                <a href={TEL} className="hover:text-accent">
+                  666 854 310
+                </a>
+              </li>
+              <li>
+                <a href={WA} className="hover:text-accent">
+                  WhatsApp
+                </a>
+              </li>
+              <li>
+                <a href={EMAIL} className="hover:text-accent">
+                  ayoxservicios@gmail.com
+                </a>
+              </li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-border">
-          <div className="mx-auto flex max-w-7xl flex-col justify-between gap-2 px-6 py-5 text-xs text-muted-foreground sm:flex-row">
-            <span>© {new Date().getFullYear()} AYOX Servicios · Servicios Integrales 24h. Titular: Mohamed Ayoub Benmarzouk · NIF/NIE Y8933023K</span>
-            <span className="flex gap-4">
-              <a href="https://ayox-servicios.es/aviso-legal" className="hover:text-accent">Aviso legal</a>
-              <a href="https://ayox-servicios.es/privacidad" className="hover:text-accent">Privacidad</a>
-              <a href="https://ayox-servicios.es/cookies" className="hover:text-accent">Cookies</a>
-            </span>
-          </div>
+        <div className="border-t border-border py-4 text-center text-xs text-muted-foreground">
+          © {new Date().getFullYear()} AYOX Fontanería · Mohamed Ayoub Benmarzouk · NIF/NIE Y8933023K
         </div>
       </footer>
 
