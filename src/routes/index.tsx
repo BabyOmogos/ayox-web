@@ -189,8 +189,9 @@ function Index() {
                   </Link>
                 </Button>
               )}
-              <a href={TEL} className="plumbing-btn-phone hidden md:inline-flex">
-                <Phone className="size-4" aria-hidden /> 666 854 310
+              <a href={TEL} className="plumbing-btn-phone shrink-0 whitespace-nowrap">
+                <Phone className="size-4 shrink-0" aria-hidden />
+                <span>666 854 310</span>
               </a>
               <Button asChild size="sm" className="hidden lg:inline-flex bg-primary text-primary-foreground">
                 <a href="#reservar">

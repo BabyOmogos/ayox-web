@@ -325,6 +325,7 @@ body { font-family: var(--font-body); }
 .plumbing-btn-phone {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 0.55rem;
   border-radius: 999px;
   background: var(--tufont-cyan);
@@ -332,9 +333,22 @@ body { font-family: var(--font-body); }
   padding: 0.55rem 1.15rem;
   font-size: 0.875rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
   box-shadow: 0 4px 14px oklch(0.75 0.12 195 / 35%);
   transition: transform 0.2s, box-shadow 0.2s;
+}
+@media (max-width: 767px) {
+  .plumbing-header .plumbing-btn-phone {
+    gap: 0.3rem;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+  }
+  .plumbing-header .plumbing-brand-word {
+    font-size: 1.45rem;
+  }
 }
 .plumbing-btn-phone:hover {
   transform: translateY(-1px);
